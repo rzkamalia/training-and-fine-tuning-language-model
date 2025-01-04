@@ -11,7 +11,7 @@ One major technique for both training and fine-tuning text embedding models is c
 
 Although there are many forms of contrastive learning, one framework that has popularized the technique within the natural language processing community is `sentence-transformers`. Before `sentence-transformers`, sentence embeddings often used an architectural structure called cross-encoders with BERT.
 
-|![cross-encoder](/assets/cross-encoder.jpeg)| 
+|![cross-encoder](/creating-text-embedding-models/assets/cross-encoder.jpeg)| 
 |:-:| 
 |Figure 1. The cross-encoder architecture. Both sentences are concatenated, separated with <SEP> token, and fed to the model simultaneously. (source: [1])|
 
@@ -19,7 +19,7 @@ A cross-encoder processes two sentences together through a Transformer network t
 
 Unlike a cross-encoder, in `sentence-transformers` the classification head is dropped, and instead mean pooling is used on the final output layer to generate an embedding. This pooling layer averages the word embeddings and gives back a fixed dimensional output vector. This ensures a fixed-size embedding. 
 
-|![bi-encoder](/assets/bi-encoder.jpeg)| 
+|![bi-encoder](/creating-text-embedding-models/assets/bi-encoder.jpeg)| 
 |:-:| 
 |Figure 2. An original architecture of `sentence-transformers` model, which leverages a Siamese network, also called a bi-encoder. (source: [1])|
 
@@ -38,7 +38,7 @@ Both, cross-encoder and bi-encoder, leverages contrastive learning. To perform c
 ### Generate contrastive learning
 When pretraining our embedding model, we will often see data being used from natural language (NLI) datasets. NLI refers to the task of investigating whether, for given premise, it entails the hypothesis (entailment), contradicts it (contradiction), or neither (neutral). The example of NL dataset shown in Figure 3. 
 
-|![nli-example](/assets/nli-example.jpeg)| 
+|![nli-example](/creating-text-embedding-models/assets/nli-example.jpeg)| 
 |:-:| 
 |Figure 3. The example of the NLI dataset. (source: [1])|
 
@@ -57,7 +57,7 @@ The MNLI dataset from GLUE contains three labels: entailment (0), neutral (1), a
 
 We will use only 50,000 sentence pairs from the MNLI dataset. The code for training the MNLI dataset using the softmax loss function can be found in [contrastive-learning-softmax.py](contrastive-learning-softmax.py). Below are the training process and evaluation results.
 
-|![contrastive-softmax](/assets/results/contrastive-softmax.png)| 
+|![contrastive-softmax](/creating-text-embedding-models/assets/results/contrastive-softmax.png)| 
 |:-:| 
 |Figure 4. Training proses and evaluation results of contrastive learning using the softmax loss function.|
 
@@ -77,7 +77,7 @@ Here is an example of data that has been converted.
 
 The code for training the MNLI dataset using the cosine similarity loss function can be found in [contrastive-learning-cosine.py](contrastive-learning-cosine.py). Below are the training process and evaluation results.
 
-|![contrastive-cosine](/assets/results/contrastive-cosine.png)| 
+|![contrastive-cosine](/creating-text-embedding-models/assets/results/contrastive-cosine.png)| 
 |:-:| 
 |Figure 5. Training process and evaluation results of contrastive learning using the cosine similarity loss function.|
 
@@ -101,13 +101,13 @@ Here is the data used for training with the MNR loss function.
 
 The code for training the MNLI dataset using the MNR loss function can be found in [contrastive-learning-mnr.py](contrastive-learning-mnr.py). Below are the training process and evaluation results.
 
-|![contrastive-mnr](/assets/results/contrastive-mnr.png)| 
+|![contrastive-mnr](/creating-text-embedding-models/assets/results/contrastive-mnr.png)| 
 |:-:| 
 |Figure 6. Training process and evaluation results of contrastive learning using the MNR loss function.|
 
 There is a downside to how we used this loss function. Since negatives are sampled from other question-answer pairs, these in-batch or "easy" negatives that used cloud potentially be completely unrelated to the question. As a result, the embedding model's task of then finding the right answer to a question becomes quite easy. Instead, we would like to have negatives that are very related to the question but not the right answer. These negatives are called *hard negatives*. Since this would make the task more difficult for the embedding model as it has to learn more nuanced representations, the embedding model's performance generally improve quite a bit. A good example of hard negative is the following.
 
-|![hard-negative](/assets/hard-negative.jpeg)| 
+|![hard-negative](/creating-text-embedding-models/assets/hard-negative.jpeg)| 
 |:-:| 
 |Figure 7. An example of easy, semi-hard, and hard negatives. (source: [1])|
 
@@ -121,15 +121,15 @@ There are several ways to fine-tune your model, depending on data availability a
 ### Supervised
 We will use the same data as we used to train model using MNR loss. The code for fine-tune using the supervised method can be found in [supervised.py](supervised.py). Below are the training process and evaluation results.
 
-|![supervised](/assets/results/supervised.png)| 
+|![supervised](/creating-text-embedding-models/assets/results/supervised.png)| 
 |:-:| 
 |Figure 8. Training process and evaluation results using supervised method.|
 
 Training from scratch or fine-tuning embedding models often requires substantial data, with many models being trained on over a billion sentence pairs. However, extracting such a large number of pairs for specific use cases is typically impractical, as only a few thousand labeled data points are often available. Fortunately, a method called *Augmented SBERT* enables training embedding models even with limited labeled data.
 
-|![augmented-sbert](/assets/augmented-sbert.jpeg)| 
+|![augmented-sbert](/creating-text-embedding-models/assets/augmented-sbert.jpeg)| 
 |:-:| 
-|Figure 8. Augmented SBERT flow. (source: [1])|
+|Figure 9. Augmented SBERT flow. (source: [1])|
 
 Augmented SBET involves the following steps:
 1. Fine-tune a cross-encoder (BERT) using a small annotated dataset (gold dataset).
@@ -140,15 +140,15 @@ Augmented SBET involves the following steps:
 The model was fine-tuned using a supervised method with 50,000 sentence pairs from the MNLI dataset. For augmentation, only 10,000 pairs were used to simulate limited annotated data. 
 The code for augmented SBERT can be found in [supervised-augmented.py](supervised-augmented.py). We explain step-by-step in our code. Below are the training process and evaluation results.
 
-|![supervised-augmented-20](/assets/results/supervised-augmented-20.png)| 
+|![supervised-augmented-20](/creating-text-embedding-models/assets/results/supervised-augmented-20.png)| 
 |:-:| 
-|Figure 9. Training process and evaluation results using Augmented SBERT.|
+|Figure 10. Training process and evaluation results using Augmented SBERT.|
 
 The previous augmentation used 10,000 pairs; we also experimented with 25,000 sentence pairs. Below are the training process and evaluation results with 25,000 sentence pairs.
 
-|![supervised-augmented-50](/assets/results/supervised-augmented-50.png)| 
+|![supervised-augmented-50](/creating-text-embedding-models/assets/results/supervised-augmented-50.png)| 
 |:-:| 
-|Figure 10. Training process and evaluation results using Augmented SBERT with 25,000 sentence pairs.|
+|Figure 11. Training process and evaluation results using Augmented SBERT with 25,000 sentence pairs.|
 
 ### Unsupervised
 Not all real-world datasets come with a convenient set of labels. Instead, we explore techniques to train the model without predetermined labels, such as unsupervised learning. One approach is the Transformer-based Sequential Denoising Auto-Encoder (TSDAE).
@@ -159,9 +159,9 @@ This method is very similar to masked language modeling, where we try to reconst
 
 After training, we can use the encoder to generate embeddings from text since the decoder is only used for judging whether the embeddings can accurately reconstruct the original sentence. 
 
-|![tsdae](/assets/tsdae.jpeg)| 
+|![tsdae](/creating-text-embedding-models/assets/tsdae.jpeg)| 
 |:-:| 
-|Figure 11. Transformer-based Sequential Denoising Auto-Encoder flow. (source: [1])|
+|Figure 12. Transformer-based Sequential Denoising Auto-Encoder flow. (source: [1])|
 
 For the experiment, we (still) use the dataset from MNLI. Here is an example of data after we demaged the dataset.
 ```
@@ -187,16 +187,16 @@ train_loss = losses.DenoisingAutoEncoderLoss(embedding_model, tie_encoder_decode
 
 Full code for this experiment can be seen in [unsupervised.py](unsupervised.py). Below are the training process and evaluation results.
 
-|![unsupervised](/assets/results/unsupervised.png)| 
+|![unsupervised](/creating-text-embedding-models/assets/results/unsupervised.png)| 
 |:-:| 
-|Figure 12. Training process and evaluation results using unsupervised method.|
+|Figure 13. Training process and evaluation results using unsupervised method.|
 
 ### Adaptive pretraining
 When limited or no labeled data is available, unsupervised learning is often used to create text embedding models. However, unsupervised methods generally perform worse than supervised ones and struggle to capture domain-specific concepts. This challenge is addressed through *domain adaptation*, which updates existing embedding models to better align with a specific textual domain that differs from the source domain. The target domain often includes unique words and topics not present in the source domain. A common approach for domain adaptation is *adaptive pretraining*, where a domain-specific corpus is first pretrained using unsupervised techniques like TSDAE. The pretrained model is then fine-tuned with a training dataset, ideally from the target domain, though out-domain data can also work effectively since the initial unsupervised training is specific to the target domain.
 
-|![adaptive](/assets/adaptive.jpeg)| 
+|![adaptive](/creating-text-embedding-models/assets/adaptive.jpeg)| 
 |:-:| 
-|Figure 13. Domain adaptation can be perfomed with adaptive pretraining. (source[1])|
+|Figure 14. Domain adaptation can be perfomed with adaptive pretraining. (source[1])|
 
 # Reference
 [1] Alammar, J., & Grootendorst, M. (2024). *Hands-On Large Language Models*. O'Reilly Media, Inc.
