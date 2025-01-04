@@ -206,5 +206,5 @@ All experiments are conducted using several rental servers in vast.ai with the f
 + CPU: Minimum 32 cores
 + RAM: Minimum 32GB
 + VRAM (GPU): Minimum 15GB (using 8GB is soooooooooo slow, lol)
-+Storage Disk: Minimum 48GB
++ Storage Disk: Minimum 48GB
 + CUDA Version: Minimum 12.1
