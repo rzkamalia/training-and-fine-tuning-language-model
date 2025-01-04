@@ -1,0 +1,5 @@
+augmented_embedding_model/
+cosineloss_embedding_model/
+finetuned_embedding_model/
+mnrloss_embedding_model/
+tsdae_embedding_model/
