@@ -24,7 +24,7 @@ val_stsb = load_dataset(
 evaluator = evaluation.EmbeddingSimilarityEvaluator(
     sentences1=val_stsb["sentence1"],
     sentences2=val_stsb["sentence2"],
-    scores=[score/5 for score in val_stsb["label"]],
+    scores=val_stsb["label"],
     main_similarity="cosine"
 )
 
